@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 from scipy.spatial import distance
 
-model = SentenceTransformer('LaBSE')
+# model = SentenceTransformer('LaBSE')
 
 class LabseAlignerService:
     @staticmethod  

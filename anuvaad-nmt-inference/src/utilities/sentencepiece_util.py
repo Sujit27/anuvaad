@@ -45,7 +45,7 @@ def encode_line(load_model,line):
     try:
         sp = spm.SentencePieceProcessor()
         sp.load(load_model)
-        log_info("encoding using sp model {}".format(load_model),MODULE_CONTEXT)
+        # log_info("encoding using sp model {}".format(load_model),MODULE_CONTEXT)
         return sp.encode_as_pieces(line)
     except Exception as e:
         log_exception("something went wrong!",MODULE_CONTEXT,e)
@@ -96,7 +96,7 @@ def decode_line(load_model,line):
             line = line+"]"     
         line = line[0]+line[1:-1].replace('[',"")+line[-1] 
         line = line[0]+line[1:-1].replace(']',"")+line[-1]  
-        log_info("decoding using sp model {}".format(load_model),MODULE_CONTEXT)
+        # log_info("decoding using sp model {}".format(load_model),MODULE_CONTEXT)
         if "<unk>" in line:
             line = line.replace("<unk>","")
         return sp.DecodePieces(eval(line))

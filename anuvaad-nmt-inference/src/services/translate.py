@@ -1,21 +1,21 @@
-import ctranslate2
-from models import CustomResponse, Status
-from anuvaad_auditor.loghandler import log_info, log_exception
-from utilities import MODULE_CONTEXT
-import os
-import json 
-import sys
-import re
-import utilities.sentencepiece_util as sp
-import utilities.sentence_processor as sentence_processor
-import utilities.special_case_handler as special_case_handler
-import utilities.tagger_util as tagger_util
-import utilities.misc as misc
-import utilities.output_cleaner as oc
+# import ctranslate2
+# from models import CustomResponse, Status
+# from anuvaad_auditor.loghandler import log_info, log_exception
+# from utilities import MODULE_CONTEXT
+# import os
+# import json 
+# import sys
+# import re
+# import utilities.sentencepiece_util as sp
+# import utilities.sentence_processor as sentence_processor
+# import utilities.special_case_handler as special_case_handler
+# import utilities.tagger_util as tagger_util
+# import utilities.misc as misc
+# import utilities.output_cleaner as oc
 # from config import sentencepiece_model_loc as sp_model
-from config.regex_patterns import patterns
-from onmt.translate import ServerModelError
-import config
+# from config.regex_patterns import patterns
+# from onmt.translate import ServerModelError
+# import config
 
 class TranslateService:  
     @staticmethod

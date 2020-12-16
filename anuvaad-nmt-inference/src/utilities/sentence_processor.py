@@ -13,15 +13,18 @@ def indic_tokenizer(s):
     return ' '.join(indic_tok.trivial_tokenize_indic(s))
 
 def indic_detokenizer(s):
-    log_info("detokenizing using indic",MODULE_CONTEXT)
+    # log_info("detokenizing using indic",MODULE_CONTEXT)
     return indic_detok.trivial_detokenize_indic(s)
 
 def moses_tokenizer(text):
-    log_info("moses_tokenizing",MODULE_CONTEXT)
+    # log_info("moses_tokenizing",MODULE_CONTEXT)
     tokenizer_path = "src/tools/tokenizer.perl" 
     text = text 
     lang = "en" 
-    pipe = subprocess.Popen(["perl", tokenizer_path, '-l', lang, text], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    # pipe = subprocess.Popen(["perl", tokenizer_path, '-l', lang, text], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    pipe = subprocess.Popen(["perl", tokenizer_path, '-l', lang, text], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr= subprocess.DEVNULL
+
+)
     pipe.stdin.write(text.encode('utf-8'))
     pipe.stdin.close()
     tokenized_output = pipe.stdout.read()
