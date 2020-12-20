@@ -6,6 +6,7 @@ import time
 sys.path.append("src")
 import ctranslate2
 import services.translate as anuvaad_services
+import services.document_translate as anuvaad_services_batch
 import utilities.sentence_processor as sentence_processor
 import utilities.sentencepiece_util as sp
 
@@ -78,6 +79,24 @@ def file_to_input(input_file, return_sample=False):
     
     if return_sample:
         return input_for_anuvaad[:32]
+    else:
+        return input_for_anuvaad
+
+def file_to_batch_input(input_file, return_sample=False):
+    '''
+    Reads in a file with one sentence in each line and
+    returns a dict type input for anuvaad batch pipeline
+    '''
+    with open(input_file,'r') as f:
+        input_text_array = f.readlines()
+
+    input_text_array = [sent[:-1] for sent in input_text_array]
+    # input_text = " ".join(input_text_array)
+    input_for_anuvaad = {'id': 56, 'src_list': input_text_array} 
+    
+    if return_sample:
+        input_for_anuvaad['src_list'] = input_for_anuvaad['src_list'][:32]
+        return input_for_anuvaad
     else:
         return input_for_anuvaad
 
@@ -172,6 +191,35 @@ def eval_anuvaad_pipeline(input_dict,mode):
     else:
         return input_final
 
+def find_number_of_subwords(input_for_translation_list):
+    '''
+    Finds number of subwords, the input is a list of dictionaries
+    with 'id' and 'src' key
+    '''
+    num_tokens = 0
+    for input_for_translation in input_for_translation_list:
+        if input_for_translation['src'].isupper():
+            input_for_translation['src'] = input_for_translation['src'].title()
+        input_tokenized = sentence_processor.moses_tokenizer(input_for_translation['src'])
+        input_encoded = str(sp.encode_line(ANUVAAD_ENCODER,input_tokenized))
+        input_final = anuvaad_services.format_converter(input_encoded)
+
+        num_tokens += len(input_final)
+
+    return num_tokens
+
+def eval_anuvaad_batch_translation(input_for_translation):
+    '''
+    Evaluates performance of document translate (batch)
+    '''
+    translator_service = anuvaad_services_batch.NMTTranslateService()
+    start = time.time()
+    for _ in range(M):
+        output = translator_service.batch_translator(input_for_translation)
+    
+    time_taken = (time.time() - start)/M
+    return output, time_taken
+
 def main():
     print("Checking performance...")
 
@@ -193,9 +241,9 @@ def main():
     # pipeline_times_per_token = eval_anuvaad_pipeline(INPUT_SAMPLE, 0)
     # print("\n".join(map(str,pipeline_times_per_token)))
 
-    print("Checking anuvaad pipeline performance")
-    translation, _ = eval_anuvaad_pipeline(INPUT_SAMPLE, 1)
-    print(translation)
+    # print("Checking anuvaad pipeline performance")
+    # translation, _ = eval_anuvaad_pipeline(INPUT_SAMPLE, 1)
+    # print(translation)
 
     # print("\n")
 
@@ -217,6 +265,25 @@ def main():
     #     formatted_input_array.append(eval_anuvaad_pipeline(input_dict,2))
     # time_taken_per_token_hindi, _ = eval_anuvaad_translation(formatted_input_array)
     # print(time_taken_per_token_hindi)
+
+    # print("Checking anuvaad translation batch sequence order")
+    # input_dict_list = file_to_input(INPUT_FILE,return_sample=True)
+    # formatted_input_array = []
+    # for input_dict in input_dict_list:
+    #     formatted_input_array.append(eval_anuvaad_pipeline(input_dict,2))
+    # _, output_array = eval_anuvaad_translation(formatted_input_array)
+    # for i in range(len(output_array)):
+    #     output = " ".join(output_array[i][0]['tokens'])
+    #     output_decoded = sp.decode_line(ANUVAAD_DECODER,output)
+    #     translation = sentence_processor.indic_detokenizer(output_decoded)
+    #     print(input_dict_list[i]['src'] + " : " + translation)
+
+    print("Checking anuvaad document(batch) translator")
+    num_input_tokens = find_number_of_subwords(file_to_input(INPUT_FILE, return_sample=True))
+    batch_input = file_to_batch_input(INPUT_FILE, return_sample=True)
+    _, time_taken = eval_anuvaad_batch_translation(batch_input)
+    print("Time taken per token : ", time_taken/num_input_tokens)
+
 
 
 
